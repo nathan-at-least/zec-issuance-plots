@@ -55,7 +55,10 @@ pub fn block_subsidy(height: Height) -> Zat {
 
 // Transcription of `zcash/src/consensus/params.cpp` `Params::Halving`
 fn halvings_at(height: Height) -> usize {
-    if height >= BLOSSOM_ACTIVATION {
+    // BUG This case not handled in zcashd!
+    if height < SUBSIDY_SLOW_START_SHIFT {
+        0
+    } else if height >= BLOSSOM_ACTIVATION {
         // The number of blocks between the end of the shift and blossom activation:
         let post_shift_pre_blossom: Height = BLOSSOM_ACTIVATION - SUBSIDY_SLOW_START_SHIFT;
 
@@ -76,3 +79,6 @@ fn halvings_at(height: Height) -> usize {
         (height - SUBSIDY_SLOW_START_SHIFT) / PRE_BLOSSOM_HALVING_INTERVAL
     }
 }
+
+#[cfg(test)]
+mod tests;
