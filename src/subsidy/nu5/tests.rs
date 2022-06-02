@@ -9,7 +9,7 @@ const FIRST_HALVING: Height = 1_046_400;
 const SECOND_HALVING: Height = FIRST_HALVING + POST_BLOSSOM_HALVING_INTERVAL;
 
 /// This amount is the increment in subsidy per block during slow start:
-const SLOW_START_INCREMENT: Zat = 62_500;
+const SLOW_START_INCREMENT: Zat = START_SUBSIDY / SUBSIDY_SLOW_START_INTERVAL;
 
 // Define boundary values around constants:
 const FIRST_HALVING_MINUS_1: Height = FIRST_HALVING - 1;
@@ -39,7 +39,7 @@ const POST_BLOSSOM_HALVING_INTERVAL_PLUS_1: Height = POST_BLOSSOM_HALVING_INTERV
 #[test_case(
     1 => (0, SLOW_START_INCREMENT)
 )]
-#[test_case(
+#[test_case( // Notice the gap between SUBSIDY_SLOW_START_SHIFT and one block prior:
     SUBSIDY_SLOW_START_SHIFT => (0, START_SUBSIDY / 2 + SLOW_START_INCREMENT)
 )]
 #[test_case(
