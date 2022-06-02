@@ -37,7 +37,7 @@ pub const POST_BLOSSOM_HALVING_INTERVAL: Height =
 /// Transcription from `zcash/src/consensus/params.h`
 pub const SUBSIDY_SLOW_START_SHIFT: Height = SUBSIDY_SLOW_START_INTERVAL / 2;
 
-// Transcription of `zcash/src/main.cpp` `GetBlockSubsidy`
+/// Transcription of `zcash/src/main.cpp` `GetBlockSubsidy`
 pub fn block_subsidy(height: Height) -> Zat {
     if height < SUBSIDY_SLOW_START_SHIFT {
         return (START_SUBSIDY / SUBSIDY_SLOW_START_INTERVAL) * height;
