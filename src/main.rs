@@ -12,8 +12,8 @@ use crate::subsidy::Subsidy::NU5;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let max_height = {
-        let hh2 = halving_height(2);
-        hh2 + (hh2 / 10)
+        let h = halving_height(3);
+        h + (h / 10)
     };
 
     plot(
