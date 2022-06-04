@@ -7,6 +7,9 @@ use test_case::test_case;
 
 const FIRST_HALVING: Height = 1_046_400;
 const SECOND_HALVING: Height = FIRST_HALVING + POST_BLOSSOM_HALVING_INTERVAL;
+const PENULTIMATE_HALVING: Height = FIRST_HALVING + 28 * POST_BLOSSOM_HALVING_INTERVAL;
+const ULTIMATE_HALVING: Height = FIRST_HALVING + 29 * POST_BLOSSOM_HALVING_INTERVAL;
+const SIXTY_FIFTH_HALVING: Height = FIRST_HALVING + 64 * POST_BLOSSOM_HALVING_INTERVAL;
 
 /// This amount is the increment in subsidy per block during slow start:
 const SLOW_START_INCREMENT: Zat = START_SUBSIDY / SUBSIDY_SLOW_START_INTERVAL;
@@ -101,6 +104,15 @@ const POST_BLOSSOM_HALVING_INTERVAL_PLUS_1: Height = POST_BLOSSOM_HALVING_INTERV
 )]
 #[test_case(
     SECOND_HALVING_PLUS_1 => (2, START_SUBSIDY / 8)
+)]
+#[test_case(
+    PENULTIMATE_HALVING => (29, 1)
+)]
+#[test_case(
+    ULTIMATE_HALVING => (30, 0)
+)]
+#[test_case(
+    SIXTY_FIFTH_HALVING => (65, 0)
 )]
 fn halvings_and_subsidy(height: Height) -> (usize, Zat) {
     (super::halvings_at(height), super::block_subsidy(height))
