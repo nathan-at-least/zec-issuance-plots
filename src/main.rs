@@ -3,6 +3,7 @@ mod halving;
 mod idealtime;
 mod plot;
 mod subsidy;
+mod timebuckets;
 mod units;
 
 use self::plot::plot;
@@ -17,10 +18,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         h + (h / 10)
     };
 
+    let raw_points = (0..max_height).map(|h| (idealtime::at(h), zat2zec(NU5.block_subsidy(h))));
+
     plot(
         idealtime::range(0, max_height),
         0f32..zat2zec(START_SUBSIDY),
-        (0..max_height).map(|h| (idealtime::at(h), zat2zec(NU5.block_subsidy(h)))),
+        timebuckets::TimeBucketIter::new(raw_points, chrono::Duration::minutes(10)),
     )?;
     Ok(())
 }
