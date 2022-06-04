@@ -1,4 +1,5 @@
 use crate::idealtime::DateTime;
+use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
 use std::ops::Range;
 
@@ -17,7 +18,7 @@ where
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(30)
-        .build_cartesian_2d(xrange, yrange)?;
+        .build_cartesian_2d(xrange.monthly(), yrange)?;
 
     chart.configure_mesh().draw()?;
 
