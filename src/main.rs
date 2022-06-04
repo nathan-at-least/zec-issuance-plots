@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     plot(
         idealtime::range(0, max_height),
-        0f32..zat2zec(START_SUBSIDY),
+        0f32..zat2zec(4 * START_SUBSIDY),
         timebuckets::TimeBucketIter::new(raw_points, idealtime::bitcoin_block_target()),
     )?;
     Ok(())
