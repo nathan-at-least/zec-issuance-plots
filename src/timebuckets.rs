@@ -46,7 +46,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         for (t, y) in self.it.by_ref() {
             if let Some(bucket) = self.bucket.as_mut() {
-                if t - bucket.start > self.windowsize {
+                if t - bucket.start >= self.windowsize {
                     let next = (bucket.start, bucket.sum);
                     self.bucket = Some(Bucket { start: t, sum: y });
                     return Some(next);
@@ -66,3 +66,6 @@ where
         }
     }
 }
+
+#[cfg(test)]
+mod tests;

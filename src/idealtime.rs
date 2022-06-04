@@ -3,9 +3,14 @@
 
 use crate::units::Height;
 use chrono::offset::Utc;
+use chrono::Duration;
 use std::ops::Range;
 
 pub type DateTime = chrono::DateTime<Utc>;
+
+pub fn bitcoin_block_target() -> Duration {
+    Duration::minutes(10)
+}
 
 const GENESIS_TIME_TEXT: &str = "2016-10-28 07:56:00 UTC";
 
@@ -13,7 +18,6 @@ pub fn at(h: Height) -> DateTime {
     use crate::consts::{
         BLOSSOM_ACTIVATION, POST_BLOSSOM_POW_TARGET_SPACING, PRE_BLOSSOM_POW_TARGET_SPACING,
     };
-    use chrono::Duration;
     use std::cmp::{max, min};
 
     let pre_blossom_blocks = min(h, BLOSSOM_ACTIVATION);
