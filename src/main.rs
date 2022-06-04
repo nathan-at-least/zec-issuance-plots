@@ -1,7 +1,9 @@
 mod consts;
 mod halving;
+mod idealtime;
 mod plot;
 mod subsidy;
+mod timebuckets;
 mod units;
 
 use self::plot::plot;
@@ -16,10 +18,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         h + (h / 10)
     };
 
+    let raw_points = (0..max_height).map(|h| (idealtime::at(h), zat2zec(NU5.block_subsidy(h))));
+
     plot(
-        0f32..(max_height as f32),
-        0f32..zat2zec(START_SUBSIDY),
-        (0..max_height).map(|h| (h as f32, zat2zec(NU5.block_subsidy(h)))),
+        idealtime::range(0, max_height),
+        0f32..zat2zec(4 * START_SUBSIDY),
+        timebuckets::TimeBucketIter::new(raw_points, idealtime::bitcoin_block_target()),
     )?;
     Ok(())
 }

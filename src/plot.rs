@@ -1,13 +1,15 @@
+use crate::idealtime::DateTime;
+use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
 use std::ops::Range;
 
 pub fn plot<I>(
-    xrange: Range<f32>,
+    xrange: Range<DateTime>,
     yrange: Range<f32>,
     points: I,
 ) -> Result<(), Box<dyn std::error::Error>>
 where
-    I: Iterator<Item = (f32, f32)>,
+    I: Iterator<Item = (DateTime, f32)>,
 {
     let root = BitMapBackend::new("target/plot.png", (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
@@ -16,7 +18,7 @@ where
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(30)
-        .build_cartesian_2d(xrange, yrange)?;
+        .build_cartesian_2d(xrange.monthly(), yrange)?;
 
     chart.configure_mesh().draw()?;
 

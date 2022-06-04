@@ -19,7 +19,9 @@ pub fn block_subsidy(height: Height) -> Zat {
     }
 
     let halvings = halvings_at(height);
-    if height >= BLOSSOM_ACTIVATION {
+    if halvings > 63 {
+        0
+    } else if height >= BLOSSOM_ACTIVATION {
         (START_SUBSIDY / BLOSSOM_POW_TARGET_SPACING_RATIO) >> halvings
     } else {
         START_SUBSIDY >> halvings
