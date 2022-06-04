@@ -1,5 +1,6 @@
 mod consts;
 mod halving;
+mod idealtime;
 mod plot;
 mod subsidy;
 mod units;
@@ -17,9 +18,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     plot(
-        0f32..(max_height as f32),
+        idealtime::range(0, max_height),
         0f32..zat2zec(START_SUBSIDY),
-        (0..max_height).map(|h| (h as f32, zat2zec(NU5.block_subsidy(h)))),
+        (0..max_height).map(|h| (idealtime::at(h), zat2zec(NU5.block_subsidy(h)))),
     )?;
     Ok(())
 }
