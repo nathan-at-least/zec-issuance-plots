@@ -22,8 +22,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     LinePlot {
         caption: "ZEC Issuance per 10m Interval (NU5)",
-        xrange: idealtime::range(0, max_height),
-        yrange: 0f32..zat2zec(4 * START_SUBSIDY),
+        x_range: idealtime::range(0, max_height),
+        y_range: 0f32..(zat2zec(4 * START_SUBSIDY) * 1.05),
         points: timebuckets::TimeBucketIter::new(raw_points, idealtime::bitcoin_block_target()),
     }
     .plot()?;

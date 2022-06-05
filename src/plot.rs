@@ -6,8 +6,8 @@ use std::ops::Range;
 #[derive(Debug)]
 pub struct LinePlot<I> {
     pub caption: &'static str,
-    pub xrange: Range<DateTime>,
-    pub yrange: Range<f32>,
+    pub x_range: Range<DateTime>,
+    pub y_range: Range<f32>,
     pub points: I,
 }
 
@@ -23,7 +23,7 @@ where
             .margin(5)
             .x_label_area_size(30)
             .y_label_area_size(30)
-            .build_cartesian_2d(self.xrange.monthly(), self.yrange)?;
+            .build_cartesian_2d(self.x_range.monthly(), self.y_range)?;
 
         chart.configure_mesh().disable_mesh().draw()?;
 
