@@ -13,6 +13,8 @@ use crate::halving::halving_height;
 use crate::subsidy::Subsidy::NU5;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    std::fs::create_dir_all("plots")?;
+
     let max_height = {
         let h = halving_height(3);
         h + (h / 10)

@@ -17,7 +17,7 @@ where
     I: Iterator<Item = (DateTime, f32)>,
 {
     pub fn plot(self) -> Result<(), Box<dyn std::error::Error>> {
-        let path = format!("target/{}.png", self.file_stem);
+        let path = format!("plots/{}.png", self.file_stem);
         let root = BitMapBackend::new(&path, (960, 480)).into_drawing_area();
         root.fill(&WHITE)?;
 
