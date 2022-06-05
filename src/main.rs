@@ -21,6 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let raw_points = (0..max_height).map(|h| (idealtime::at(h), zat2zec(NU5.block_subsidy(h))));
 
     LinePlot {
+        file_stem: "issuance",
         caption: "ZEC Issuance per 10m Interval (NU5)",
         x_range: idealtime::range(0, max_height),
         y_range: 0f32..(zat2zec(4 * START_SUBSIDY) * 1.05),

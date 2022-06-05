@@ -5,6 +5,7 @@ use std::ops::Range;
 
 #[derive(Debug)]
 pub struct LinePlot<I> {
+    pub file_stem: &'static str,
     pub caption: &'static str,
     pub x_range: Range<DateTime>,
     pub y_range: Range<f32>,
@@ -16,8 +17,10 @@ where
     I: Iterator<Item = (DateTime, f32)>,
 {
     pub fn plot(self) -> Result<(), Box<dyn std::error::Error>> {
-        let root = BitMapBackend::new("target/plot.png", (960, 480)).into_drawing_area();
+        let path = format!("target/{}.png", self.file_stem);
+        let root = BitMapBackend::new(&path, (960, 480)).into_drawing_area();
         root.fill(&WHITE)?;
+
         let mut chart = ChartBuilder::on(&root)
             .caption(self.caption, ("sans-serif", 20).into_font())
             .margin(5)
