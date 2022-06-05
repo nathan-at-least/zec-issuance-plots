@@ -6,7 +6,7 @@ mod subsidy;
 mod timebuckets;
 mod units;
 
-use self::plot::plot;
+use self::plot::LinePlot;
 use self::units::Zat;
 use crate::consts::{COIN, START_SUBSIDY};
 use crate::halving::halving_height;
@@ -20,11 +20,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let raw_points = (0..max_height).map(|h| (idealtime::at(h), zat2zec(NU5.block_subsidy(h))));
 
-    plot(
-        idealtime::range(0, max_height),
-        0f32..zat2zec(4 * START_SUBSIDY),
-        timebuckets::TimeBucketIter::new(raw_points, idealtime::bitcoin_block_target()),
-    )?;
+    LinePlot {
+        xrange: idealtime::range(0, max_height),
+        yrange: 0f32..zat2zec(4 * START_SUBSIDY),
+        points: timebuckets::TimeBucketIter::new(raw_points, idealtime::bitcoin_block_target()),
+    }
+    .plot()?;
+
     Ok(())
 }
 
