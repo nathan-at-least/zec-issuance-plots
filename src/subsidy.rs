@@ -5,8 +5,11 @@ use crate::units::{Height, Zat};
 /// A subsidy scheme
 #[derive(Debug)]
 pub enum Subsidy {
-    /// The subsidy scheme defined by Zcash as of NU5 (WARNING: This is not yet guaranteed to be
-    /// consensus compatible.)
+    /// The subsidy scheme defined by Zcash as of NU5. (See Warning.)
+    ///
+    /// WARNING: This is not yet guaranteed to be consensus compatible. Unit tests exist for
+    /// various properties, but an input->output compatible verification against zcashd doesn't yet
+    /// exist.
     NU5,
 }
 use Subsidy::*;
