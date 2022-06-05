@@ -10,6 +10,21 @@ use crate::consts::{
 };
 use crate::units::{Height, Zat};
 
+pub fn max_supply() -> Zat {
+    let mut m: Zat = 0;
+
+    // Loop body logic must skip h == 0 -> 0 ZAT.
+    for h in 1.. {
+        let subsidy = block_subsidy(h);
+        if subsidy == 0 {
+            return m;
+        } else {
+            m += subsidy;
+        }
+    }
+    unreachable!();
+}
+
 /// Transcription of `zcash/src/main.cpp` `GetBlockSubsidy`
 pub fn block_subsidy(height: Height) -> Zat {
     if height < SUBSIDY_SLOW_START_SHIFT {
