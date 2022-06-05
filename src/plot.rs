@@ -25,7 +25,7 @@ where
             .y_label_area_size(30)
             .build_cartesian_2d(self.xrange.monthly(), self.yrange)?;
 
-        chart.configure_mesh().draw()?;
+        chart.configure_mesh().disable_mesh().draw()?;
 
         chart
             .draw_series(LineSeries::new(self.points, &RED))?
