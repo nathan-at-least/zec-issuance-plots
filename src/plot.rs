@@ -1,4 +1,5 @@
-use crate::idealtime::DateTime;
+use crate::idealtime::{self, DateTime};
+use crate::units::Height;
 use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
 use std::ops::Range;
@@ -7,7 +8,7 @@ use std::ops::Range;
 pub struct LinePlot<I> {
     pub file_stem: &'static str,
     pub caption: &'static str,
-    pub x_range: Range<DateTime>,
+    pub x_range: Range<Height>,
     pub y_range: Range<f32>,
     pub points: I,
 }
@@ -21,12 +22,14 @@ where
         let root = BitMapBackend::new(&path, (960, 480)).into_drawing_area();
         root.fill(&WHITE)?;
 
+        let x_range_time = idealtime::range(self.x_range.start, self.x_range.end);
+
         let mut chart = ChartBuilder::on(&root)
             .caption(self.caption, ("sans-serif", 20).into_font())
             .margin(5)
             .x_label_area_size(30)
             .y_label_area_size(30)
-            .build_cartesian_2d(self.x_range.monthly(), self.y_range)?;
+            .build_cartesian_2d(x_range_time.monthly(), self.y_range)?;
 
         chart.configure_mesh().disable_mesh().draw()?;
 
