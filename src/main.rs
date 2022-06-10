@@ -21,10 +21,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     LinePlot {
         file_stem: "issuance",
         caption: "ZEC Issuance per 10m Interval (NU5)",
-        datasets: vec![DataSet {
-            name: "NU5",
-            points: (0..max_height).map(|h| (h, NU5.block_subsidy(h))).collect(),
-        }],
+        datasets: vec![DataSet::build("NU5", 0..max_height, |h| {
+            NU5.block_subsidy(h)
+        })],
     }
     .plot()?;
 

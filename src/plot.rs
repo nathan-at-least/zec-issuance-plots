@@ -4,6 +4,7 @@ use crate::timebuckets::TimeBucketIter;
 use crate::units::{Height, Zat};
 use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
+use std::ops::Range;
 
 #[derive(Debug)]
 pub struct LinePlot {
@@ -85,6 +86,18 @@ impl LinePlot {
             .draw()?;
 
         Ok(())
+    }
+}
+
+impl DataSet<Height, Zat> {
+    pub fn build<F>(name: &'static str, xrange: Range<Height>, f: F) -> Self
+    where
+        F: Fn(Height) -> Zat,
+    {
+        DataSet {
+            name,
+            points: xrange.map(|x| (x, f(x))).collect(),
+        }
     }
 }
 
