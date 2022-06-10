@@ -114,6 +114,6 @@ const POST_BLOSSOM_HALVING_INTERVAL_PLUS_1: Height = POST_BLOSSOM_HALVING_INTERV
 #[test_case(
     SIXTY_FIFTH_HALVING => (65, 0)
 )]
-fn halvings_and_subsidy(height: Height) -> (usize, Zat) {
+fn halvings_and_subsidy(height: Height) -> (u64, Zat) {
     (super::halvings_at(height), super::block_subsidy(height))
 }

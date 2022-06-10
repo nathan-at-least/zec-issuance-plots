@@ -3,7 +3,7 @@ use crate::units::Height;
 
 const FIRST_HALVING: Height = 1_046_400;
 
-pub fn halving_height(halvingnum: usize) -> Height {
+pub fn halving_height(halvingnum: u64) -> Height {
     if halvingnum == 0 {
         0
     } else {
