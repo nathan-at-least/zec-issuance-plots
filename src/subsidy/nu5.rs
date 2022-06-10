@@ -10,6 +10,7 @@ use crate::consts::{
 };
 use crate::units::{Height, Zat};
 
+/*
 pub fn max_supply() -> Zat {
     let mut m: Zat = 0;
 
@@ -24,6 +25,7 @@ pub fn max_supply() -> Zat {
     }
     unreachable!();
 }
+*/
 
 /// Transcription of `zcash/src/main.cpp` `GetBlockSubsidy`
 pub fn block_subsidy(height: Height) -> Zat {

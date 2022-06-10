@@ -22,10 +22,12 @@ impl Subsidy {
         }
     }
 
+    /*
     /// The maximum supply for the issuance schedule, if any
     pub fn max_supply(&self) -> Option<Zat> {
         match self {
             NU5 => Some(self::nu5::max_supply()),
         }
     }
+    */
 }
