@@ -1,4 +1,4 @@
-use crate::units::{Height, RatioU64, Seconds, Zat};
+use crate::units::{Height, RatioU64, Seconds, Zec};
 use std::str::FromStr;
 
 /// Transcription from `zcash/src/main.cpp`

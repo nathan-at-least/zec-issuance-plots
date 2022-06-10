@@ -2,7 +2,7 @@ use crate::halving::halving_height;
 use crate::idealtime;
 use crate::subsidy::Subsidy::NU5;
 use crate::timebuckets::TimeBucketIter;
-use crate::units::Zat;
+use crate::units::Zec;
 use test_case::test_case;
 
 #[test_case(1)]
@@ -20,7 +20,7 @@ fn test_across_boundary(halvingnum: u64) {
     let raw_points = (start..end).map(|h| (idealtime::at(h), NU5.block_subsidy(h)));
     let bucket_points = TimeBucketIter::new(raw_points, idealtime::bitcoin_block_target());
 
-    let buckets: Vec<(idealtime::DateTime, Zat)> = bucket_points.collect();
+    let buckets: Vec<(idealtime::DateTime, Zec)> = bucket_points.collect();
 
     assert_eq!(buckets.len(), 4);
     assert_eq!(buckets[0].1, buckets[1].1);

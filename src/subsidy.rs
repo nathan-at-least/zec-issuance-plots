@@ -1,6 +1,6 @@
 mod nu5;
 
-use crate::units::{Height, Zat};
+use crate::units::{Height, Zec};
 
 /// A subsidy scheme
 #[derive(Debug)]
@@ -16,14 +16,14 @@ use Subsidy::*;
 
 impl Subsidy {
     /// Calculate the block subsidy for a given height for the scheme
-    pub fn block_subsidy(&self, height: Height) -> Zat {
+    pub fn block_subsidy(&self, height: Height) -> Zec {
         match self {
             NU5 => self::nu5::block_subsidy(height),
         }
     }
 
     /// The maximum supply for the issuance schedule, if any
-    pub fn max_supply(&self) -> Option<Zat> {
+    pub fn max_supply(&self) -> Option<Zec> {
         match self {
             NU5 => Some(self::nu5::max_supply()),
         }

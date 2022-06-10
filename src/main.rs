@@ -7,7 +7,7 @@ mod timebuckets;
 mod units;
 
 use self::plot::LinePlot;
-use self::units::Zat;
+use self::units::Zec;
 use crate::consts::{COIN, START_SUBSIDY};
 use crate::halving::halving_height;
 use crate::subsidy::Subsidy::NU5;
@@ -40,6 +40,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn zat2zec(zat: Zat) -> f32 {
+fn zat2zec(zat: Zec) -> f32 {
     zat as f32 / COIN as f32
 }

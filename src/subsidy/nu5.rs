@@ -8,10 +8,10 @@ use crate::consts::{
     PRE_BLOSSOM_HALVING_INTERVAL, START_SUBSIDY, SUBSIDY_SLOW_START_INTERVAL,
     SUBSIDY_SLOW_START_SHIFT,
 };
-use crate::units::{Height, Zat};
+use crate::units::{Height, Zec};
 
-pub fn max_supply() -> Zat {
-    let mut m: Zat = 0;
+pub fn max_supply() -> Zec {
+    let mut m: Zec = 0;
 
     // Loop body logic must skip h == 0 -> 0 ZAT.
     for h in 1.. {
@@ -26,7 +26,7 @@ pub fn max_supply() -> Zat {
 }
 
 /// Transcription of `zcash/src/main.cpp` `GetBlockSubsidy`
-pub fn block_subsidy(height: Height) -> Zat {
+pub fn block_subsidy(height: Height) -> Zec {
     if height < SUBSIDY_SLOW_START_SHIFT {
         return (START_SUBSIDY / SUBSIDY_SLOW_START_INTERVAL) * height;
     } else if height < SUBSIDY_SLOW_START_INTERVAL {

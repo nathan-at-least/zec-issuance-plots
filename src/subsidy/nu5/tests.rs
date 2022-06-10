@@ -2,7 +2,7 @@ use super::{
     BLOSSOM_ACTIVATION, POST_BLOSSOM_HALVING_INTERVAL, PRE_BLOSSOM_HALVING_INTERVAL, START_SUBSIDY,
     SUBSIDY_SLOW_START_INTERVAL, SUBSIDY_SLOW_START_SHIFT,
 };
-use crate::units::{Height, Zat};
+use crate::units::{Height, Zec};
 use test_case::test_case;
 
 const FIRST_HALVING: Height = 1_046_400;
@@ -12,7 +12,7 @@ const ULTIMATE_HALVING: Height = FIRST_HALVING + 29 * POST_BLOSSOM_HALVING_INTER
 const SIXTY_FIFTH_HALVING: Height = FIRST_HALVING + 64 * POST_BLOSSOM_HALVING_INTERVAL;
 
 /// This amount is the increment in subsidy per block during slow start:
-const SLOW_START_INCREMENT: Zat = START_SUBSIDY / SUBSIDY_SLOW_START_INTERVAL;
+const SLOW_START_INCREMENT: Zec = START_SUBSIDY / SUBSIDY_SLOW_START_INTERVAL;
 
 // Define boundary values around constants:
 const FIRST_HALVING_MINUS_1: Height = FIRST_HALVING - 1;
@@ -114,6 +114,6 @@ const POST_BLOSSOM_HALVING_INTERVAL_PLUS_1: Height = POST_BLOSSOM_HALVING_INTERV
 #[test_case(
     SIXTY_FIFTH_HALVING => (65, 0)
 )]
-fn halvings_and_subsidy(height: Height) -> (u64, Zat) {
+fn halvings_and_subsidy(height: Height) -> (u64, Zec) {
     (super::halvings_at(height), super::block_subsidy(height))
 }
