@@ -13,13 +13,13 @@ pub const SUBSIDY_SLOW_START_INTERVAL: Height = 20_000;
 pub const BLOSSOM_ACTIVATION: Height = 653_600;
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const PRE_BLOSSOM_POW_TARGET_SPACING: usize = 150;
+pub const PRE_BLOSSOM_POW_TARGET_SPACING: u64 = 150;
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const POST_BLOSSOM_POW_TARGET_SPACING: usize = 75;
+pub const POST_BLOSSOM_POW_TARGET_SPACING: u64 = 75;
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const BLOSSOM_POW_TARGET_SPACING_RATIO: usize =
+pub const BLOSSOM_POW_TARGET_SPACING_RATIO: u64 =
     PRE_BLOSSOM_POW_TARGET_SPACING / POST_BLOSSOM_POW_TARGET_SPACING;
 
 /// Transcription from `zcash/src/consensus/params.h`

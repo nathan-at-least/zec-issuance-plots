@@ -44,7 +44,7 @@ pub fn block_subsidy(height: Height) -> Zat {
 }
 
 // Transcription of `zcash/src/consensus/params.cpp` `Params::Halving`
-fn halvings_at(height: Height) -> usize {
+fn halvings_at(height: Height) -> u64 {
     // BUG This case not handled in zcashd!
     if height < SUBSIDY_SLOW_START_SHIFT {
         0

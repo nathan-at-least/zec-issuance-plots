@@ -11,7 +11,7 @@ use test_case::test_case;
 #[test_case(4)]
 #[test_case(42)]
 #[test_case(123)]
-fn test_across_boundary(halvingnum: usize) {
+fn test_across_boundary(halvingnum: u64) {
     let zec_blocks_per_btc_blocks = 8;
     let hh1 = halving_height(halvingnum);
     let start = hh1 - 2 * zec_blocks_per_btc_blocks;
