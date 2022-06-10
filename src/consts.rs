@@ -1,33 +1,47 @@
-use crate::units::{Height, Zat};
-
-/// Transcription from `zcash/src/amount.h`
-pub const COIN: Zat = 100_000_000; // Number of Zatoshi per ZEC
+use crate::units::{Height, RatioU64, Seconds, Zat};
+use std::str::FromStr;
 
 /// Transcription from `zcash/src/main.cpp`
-pub const START_SUBSIDY: Zat = COIN * 125 / 10; // 12.5 ZEC
+pub fn start_subsidy() -> Zec {
+    Zec::from_str("12.5").unwrap()
+}
 
 /// Transcription from `zcash/src/chainparams.cpp`
-pub const SUBSIDY_SLOW_START_INTERVAL: Height = 20_000;
+pub fn subsidy_slow_start_interval() -> Height {
+    Height::from(20_000)
+}
 
 /// Transcription from `zcash/src/chainparams.cpp`
-pub const BLOSSOM_ACTIVATION: Height = 653_600;
+pub fn blossom_activation() -> Height {
+    Height::from(653_600)
+}
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const PRE_BLOSSOM_POW_TARGET_SPACING: u64 = 150;
+pub fn pre_blossom_pow_target_spacing() -> Seconds {
+    Seconds::from(150)
+}
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const POST_BLOSSOM_POW_TARGET_SPACING: u64 = 75;
+pub fn post_blossom_pow_target_spacing() -> Seconds {
+    Seconds::from(75)
+}
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const BLOSSOM_POW_TARGET_SPACING_RATIO: u64 =
-    PRE_BLOSSOM_POW_TARGET_SPACING / POST_BLOSSOM_POW_TARGET_SPACING;
+pub fn blossom_pow_target_spacing_ratio() -> RatioU64 {
+    pre_blossom_pow_target_spacing() / post_blossom_pow_target_spacing()
+}
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const PRE_BLOSSOM_HALVING_INTERVAL: Height = 840_000;
+pub fn pre_blossom_halving_interval() -> Height {
+    Height::from(840_000)
+}
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const POST_BLOSSOM_HALVING_INTERVAL: Height =
-    PRE_BLOSSOM_HALVING_INTERVAL * BLOSSOM_POW_TARGET_SPACING_RATIO;
+pub fn post_blossom_halving_interval() -> Height {
+    pre_blossom_halving_interval() * blossom_pow_target_spacing_ratio()
+}
 
 /// Transcription from `zcash/src/consensus/params.h`
-pub const SUBSIDY_SLOW_START_SHIFT: Height = SUBSIDY_SLOW_START_INTERVAL / 2;
+pub fn subsidy_slow_start_shift() -> Height {
+    subsidy_slow_start_interval() / 2
+}
