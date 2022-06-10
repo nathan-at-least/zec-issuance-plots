@@ -1,5 +1,5 @@
-/// A height or number of blocks
-pub type Height = u64;
+mod height;
+mod zec;
 
-/// A number of zatoshi
-pub type Zat = u64;
+pub use self::height::Height;
+pub use self::zec::Zec;
