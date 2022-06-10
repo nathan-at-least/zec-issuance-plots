@@ -1,12 +1,12 @@
-use crate::consts::POST_BLOSSOM_HALVING_INTERVAL;
-use crate::units::Height;
+use crate::consts::post_blossom_halving_interval;
+use crate::units::{Halvings, Height};
 
-const FIRST_HALVING: Height = 1_046_400;
-
-pub fn halving_height(halvingnum: u64) -> Height {
-    if halvingnum == 0 {
-        0
+pub fn halving_height(halvings: Halvings) -> Height {
+    if halvings.into() == 0 {
+        Height::from(0)
     } else {
-        FIRST_HALVING + (halvingnum - 1) * POST_BLOSSOM_HALVING_INTERVAL
+        let first_halving = Height::from(1_046_400);
+
+        first_halving + (halvings - 1) * post_blossom_halving_interval()
     }
 }
