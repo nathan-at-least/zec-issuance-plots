@@ -48,3 +48,10 @@ impl FromStr for Zec {
         Ok(Zec::from_zatoshi(wholenum * ZATOSHI_PER_ZEC + fracnum))
     }
 }
+
+// TODO: stop using `f32` altogether; right now it's an expedient for plotting.
+impl From<Zec> for f32 {
+    fn from(z: Zec) -> f32 {
+        z.0 as f32 / ZATOSHI_PER_ZEC as f32
+    }
+}

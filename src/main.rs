@@ -7,8 +7,7 @@ mod timebuckets;
 mod units;
 
 use self::plot::LinePlot;
-use self::units::Zec;
-use crate::consts::{COIN, START_SUBSIDY};
+use crate::consts::start_subsidy;
 use crate::halving::halving_height;
 use crate::subsidy::Subsidy::NU5;
 
@@ -18,7 +17,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(
         "MAX SUPPLY FOR {:?}: {:.8} ZEC",
         NU5,
-        zat2zec(NU5.max_supply().unwrap())
+        f32::from(NU5.max_supply().unwrap())
     );
 
     let max_height = {
@@ -26,20 +25,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         h + (h / 10)
     };
 
-    let raw_points = (0..max_height).map(|h| (idealtime::at(h), zat2zec(NU5.block_subsidy(h))));
+    let raw_points = (0..max_height).map(|h| (idealtime::at(h), f32::from(NU5.block_subsidy(h))));
 
     LinePlot {
         file_stem: "issuance",
         caption: "ZEC Issuance per 10m Interval (NU5)",
         x_range: idealtime::range(0, max_height),
-        y_range: 0f32..(zat2zec(4 * START_SUBSIDY) * 1.05),
+        y_range: 0f32..(f32::from(4 * start_subsidy()) * 1.05),
         points: timebuckets::TimeBucketIter::new(raw_points, idealtime::bitcoin_block_target()),
     }
     .plot()?;
 
     Ok(())
-}
-
-fn zat2zec(zat: Zec) -> f32 {
-    zat as f32 / COIN as f32
 }
