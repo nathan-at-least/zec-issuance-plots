@@ -16,18 +16,18 @@ const GENESIS_TIME_TEXT: &str = "2016-10-28 07:56:00 UTC";
 
 pub fn at(h: Height) -> DateTime {
     use crate::consts::{
-        BLOSSOM_ACTIVATION, POST_BLOSSOM_POW_TARGET_SPACING, PRE_BLOSSOM_POW_TARGET_SPACING,
+        blossom_activation, post_blossom_pow_target_spacing, pre_blossom_pow_target_spacing,
     };
     use std::cmp::{max, min};
 
-    let pre_blossom_blocks = min(h, BLOSSOM_ACTIVATION);
-    let post_blossom_blocks = max(h, BLOSSOM_ACTIVATION) - BLOSSOM_ACTIVATION;
+    let pre_blossom_blocks = min(h, blossom_activation());
+    let post_blossom_blocks = max(h, blossom_activation()) - blossom_activation();
 
-    let pre_blossom_seconds = pre_blossom_blocks * PRE_BLOSSOM_POW_TARGET_SPACING;
-    let post_blossom_seconds = post_blossom_blocks * POST_BLOSSOM_POW_TARGET_SPACING;
+    let pre_blossom_seconds = pre_blossom_blocks * pre_blossom_pow_target_spacing();
+    let post_blossom_seconds = post_blossom_blocks * post_blossom_pow_target_spacing();
     let seconds_since_genesis = pre_blossom_seconds + post_blossom_seconds;
 
-    genesis() + Duration::seconds(seconds_since_genesis as i64)
+    genesis() + seconds_since_genesis
 }
 
 pub fn range(start: Height, end: Height) -> Range<DateTime> {
