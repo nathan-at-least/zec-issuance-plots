@@ -6,6 +6,8 @@ use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
 use std::ops::Range;
 
+const PALETTE: &[RGBColor] = &[BLUE, GREEN];
+
 #[derive(Debug)]
 pub struct LinePlot {
     pub file_stem: &'static str,
@@ -15,8 +17,8 @@ pub struct LinePlot {
 
 #[derive(Debug)]
 pub struct DataSet<X, Y> {
-    pub name: &'static str,
-    pub points: Vec<(X, Y)>,
+    name: &'static str,
+    points: Vec<(X, Y)>,
 }
 
 impl LinePlot {
@@ -72,11 +74,12 @@ impl LinePlot {
 
         chart.configure_mesh().disable_mesh().draw()?;
 
-        for dset in datasets.into_iter() {
+        for (ix, dset) in datasets.into_iter().enumerate() {
+            let color = PALETTE[ix % PALETTE.len()];
             chart
-                .draw_series(LineSeries::new(dset.points.into_iter(), &RED))?
+                .draw_series(LineSeries::new(dset.points.into_iter(), color))?
                 .label(dset.name)
-                .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+                .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
         }
 
         chart
