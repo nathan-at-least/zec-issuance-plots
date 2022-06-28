@@ -6,7 +6,13 @@ use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
 use std::ops::Range;
 
-const PALETTE: &[RGBColor] = &[BLUE, GREEN];
+const PALETTE: &[RGBColor] = &[
+    RGBColor(84, 85, 108),
+    RGBColor(17, 93, 118),
+    RGBColor(211, 182, 41),
+    RGBColor(28, 82, 83),
+    RGBColor(130, 80, 82),
+];
 
 #[derive(Debug)]
 pub struct LinePlot {
