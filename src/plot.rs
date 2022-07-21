@@ -32,6 +32,7 @@ pub struct DataSet<X, Y> {
 impl LinePlot {
     pub fn plot(self) -> Result<(), Box<dyn std::error::Error>> {
         let path = format!("plots/{}.png", self.file_stem);
+        println!("Generating plot {} in {:?}", self.file_stem, &path);
         let root = BitMapBackend::new(&path, PLOT_SIZE).into_drawing_area();
         root.fill(&WHITE)?;
 
@@ -105,6 +106,7 @@ impl DataSet<Height, Zat> {
     where
         F: Fn(Height) -> Zat,
     {
+        println!("Building data set {}", name);
         DataSet {
             name,
             points: xrange.map(|x| (x, f(x))).collect(),
