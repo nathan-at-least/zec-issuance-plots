@@ -6,6 +6,8 @@ use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
 use std::ops::Range;
 
+const PLOT_SIZE: (u32, u32) = (1920, 960);
+
 const PALETTE: &[RGBColor] = &[
     RGBColor(84, 85, 108),
     RGBColor(17, 93, 118),
@@ -30,7 +32,7 @@ pub struct DataSet<X, Y> {
 impl LinePlot {
     pub fn plot(self) -> Result<(), Box<dyn std::error::Error>> {
         let path = format!("plots/{}.png", self.file_stem);
-        let root = BitMapBackend::new(&path, (960, 480)).into_drawing_area();
+        let root = BitMapBackend::new(&path, PLOT_SIZE).into_drawing_area();
         root.fill(&WHITE)?;
 
         let datasets: Vec<DataSet<DateTime, f32>> = self
