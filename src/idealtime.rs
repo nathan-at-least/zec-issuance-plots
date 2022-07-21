@@ -4,7 +4,6 @@
 use crate::units::Height;
 use chrono::offset::Utc;
 use chrono::Duration;
-use std::ops::Range;
 
 pub type DateTime = chrono::DateTime<Utc>;
 
@@ -28,10 +27,6 @@ pub fn at(h: Height) -> DateTime {
     let seconds_since_genesis = pre_blossom_seconds + post_blossom_seconds;
 
     genesis() + Duration::seconds(seconds_since_genesis as i64)
-}
-
-pub fn range(start: Height, end: Height) -> Range<DateTime> {
-    at(start)..at(end)
 }
 
 fn genesis() -> DateTime {
