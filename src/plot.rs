@@ -75,13 +75,17 @@ impl LinePlot {
             * 1.1;
 
         let mut chart = ChartBuilder::on(&root)
-            .caption(self.caption, ("sans-serif", 20).into_font())
+            .caption(self.caption, ("sans-serif", 40).into_font())
             .margin(5)
-            .x_label_area_size(30)
-            .y_label_area_size(30)
+            .x_label_area_size(60)
+            .y_label_area_size(60)
             .build_cartesian_2d((time_min..time_max).monthly(), 0f32..zec_max)?;
 
-        chart.configure_mesh().disable_mesh().draw()?;
+        chart
+            .configure_mesh()
+            .disable_mesh()
+            .label_style(("sans-serif", 25))
+            .draw()?;
 
         for (ix, dset) in datasets.into_iter().enumerate() {
             let color = PALETTE[ix % PALETTE.len()];
