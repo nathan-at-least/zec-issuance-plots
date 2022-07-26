@@ -1,5 +1,6 @@
 use crate::idealtime::DateTime;
 use crate::DataSet;
+use std::collections::BTreeSet;
 
 pub(super) fn write(stem: &str, datasets: &[DataSet<DateTime, f32>]) -> std::io::Result<()> {
     use std::io::Write;
@@ -14,58 +15,64 @@ pub(super) fn write(stem: &str, datasets: &[DataSet<DateTime, f32>]) -> std::io:
     }
     writeln!(f)?;
 
-    // We want to write one row for each time, but the datasets may have partially overlapping time
-    // axes.
-    //
-    // 1. Assume datasets are ordered chronologically.
-    // 2. Track the next point in each data set in `nexts`.
-    // 3. While there are any next points:
-    // 3.a Find the earliest time of all next points.
-    // 3.b Write a row for that time, leaving any column which does not have a value at that time
-    //   empty. While doing so, advance each column that has a point to the next point in `nexts`.
-
-    // Step 1: track peekable iterators for each dataset assuming they are chronological:
-    let mut iters: Vec<_> = datasets
+    let pts: BTreeSet<PtInner> = datasets
         .iter()
-        .map(|ds| ds.points.iter().peekable())
+        .enumerate()
+        .flat_map(|(col, ds)| ds.points.iter().map(move |(t, v)| PtInner(*t, col, *v)))
         .collect();
 
-    let mut prevtime = None;
+    let mut optrow: Option<(DateTime, Vec<f32>)> = None;
+    for PtInner(t, col, v) in pts {
+        if let Some((rowt, vs)) = optrow.take() {
+            assert!(t >= rowt);
 
-    // Step 3: while any next point exists, calculate the minimum time:
-    while let Some(nexttime) = iters
-        .iter_mut()
-        .filter_map(|pts| pts.peek().map(|(t, _)| t))
-        .min()
-    {
-        if let Some(ptime) = prevtime {
-            // Ensure the algorithm makes progress:
-            assert!(nexttime > ptime);
-        }
-        prevtime = Some(nexttime);
-
-        write!(f, "{}", nexttime)?;
-
-        for pts in iters.iter_mut() {
-            if let Some((coltime, v)) = pts.peek() {
-                assert!(
-                    coltime >= nexttime,
-                    "{:?}, {:?}, {:?}",
-                    nexttime,
-                    coltime,
-                    v
-                );
-                if coltime == nexttime {
-                    write!(f, ",{}", v)?;
-                    pts.next(); // Advance this column.
-                } else {
-                    // Empty cell:
-                    write!(f, ",")?;
+            if t > rowt {
+                write!(f, "{}", rowt)?;
+                for rowv in vs {
+                    write!(f, ",{}", rowv)?;
                 }
+                writeln!(f)?;
+
+                optrow = Some((t, vec![0f32; datasets.len()]));
             }
+        } else {
+            optrow = Some((t, vec![0f32; datasets.len()]));
+        }
+
+        let (t, mut vs) = optrow.take().unwrap();
+        vs[col] = v;
+        optrow = Some((t, vs));
+    }
+
+    if let Some((rowt, vs)) = optrow.take() {
+        write!(f, "{}", rowt)?;
+        for rowv in vs {
+            write!(f, ",{}", rowv)?;
         }
         writeln!(f)?;
     }
 
     Ok(())
+}
+
+struct PtInner(DateTime, usize, f32);
+
+impl std::cmp::Ord for PtInner {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (self.0, self.1).cmp(&(other.0, other.1))
+    }
+}
+
+impl std::cmp::PartialOrd for PtInner {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl std::cmp::Eq for PtInner {}
+
+impl std::cmp::PartialEq for PtInner {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == std::cmp::Ordering::Equal
+    }
 }
