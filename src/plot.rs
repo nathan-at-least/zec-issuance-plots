@@ -1,3 +1,5 @@
+mod csv;
+
 use crate::consts::COIN;
 use crate::idealtime::{self, DateTime};
 use crate::timebuckets::TimeBucketIter;
@@ -50,6 +52,8 @@ impl LinePlot {
                 .collect(),
             })
             .collect();
+
+        csv::write(self.file_stem, &datasets)?;
 
         let time_min = *datasets
             .iter()
