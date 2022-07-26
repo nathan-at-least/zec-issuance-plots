@@ -34,6 +34,8 @@ pub(super) fn write(stem: &str, datasets: &[DataSet<DateTime, f32>]) -> std::io:
                 writeln!(f)?;
 
                 optrow = Some((t, vec![0f32; datasets.len()]));
+            } else {
+                optrow = Some((rowt, vs));
             }
         } else {
             optrow = Some((t, vec![0f32; datasets.len()]));
