@@ -1,13 +1,9 @@
 mod csv;
 
-use crate::consts::COIN;
 use crate::downsample::downsample;
-use crate::idealtime::{bitcoin_block_target, Chain, DateTime, TimeModel};
-use crate::timebuckets::TimeBucketIter;
-use crate::units::{Height, Zat};
+use crate::idealtime::DateTime;
 use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
-use std::ops::Range;
 
 const PLOT_SIZE: (u32, u32) = (1920, 960);
 
@@ -23,10 +19,10 @@ const PALETTE: &[RGBColor] = &[
 pub struct LinePlot {
     pub file_stem: &'static str,
     pub caption: &'static str,
-    pub datasets: Vec<DataSet<Height, Zat>>,
+    pub datasets: Vec<DataSet<DateTime, f32>>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct DataSet<X, Y> {
     name: &'static str,
     points: Vec<(X, Y)>,
@@ -34,8 +30,6 @@ pub struct DataSet<X, Y> {
 
 impl LinePlot {
     pub fn plot(self) -> Result<(), Box<dyn std::error::Error>> {
-        let zctime = TimeModel::new(Chain::Zcash);
-
         let path = format!("plots/{}.png", self.file_stem);
         println!("Generating plot {} in {:?}", self.file_stem, &path);
         let root = BitMapBackend::new(&path, PLOT_SIZE).into_drawing_area();
@@ -46,13 +40,7 @@ impl LinePlot {
             .into_iter()
             .map(|dset| DataSet {
                 name: dset.name,
-                points: downsample(TimeBucketIter::new(
-                    dset.points
-                        .into_iter()
-                        .map(|(h, zat)| (zctime.at(h), zat2zec(zat))),
-                    bitcoin_block_target(),
-                ))
-                .collect(),
+                points: downsample(dset.points.into_iter()).collect(),
             })
             .collect();
 
@@ -119,21 +107,10 @@ impl LinePlot {
     }
 }
 
-impl DataSet<Height, Zat> {
-    pub fn build<F>(name: &'static str, xrange: Range<Height>, f: F) -> Self
-    where
-        F: Fn(Height) -> Zat,
-    {
-        println!("Building data set {}", name);
-        DataSet {
-            name,
-            points: xrange.map(|x| (x, f(x))).collect(),
-        }
+impl<X, Y> DataSet<X, Y> {
+    pub fn new(name: &'static str, points: Vec<(X, Y)>) -> Self {
+        DataSet { name, points }
     }
-}
-
-fn zat2zec(zat: Zat) -> f32 {
-    zat as f32 / COIN as f32
 }
 
 fn max_f32(a: f32, b: f32) -> f32 {

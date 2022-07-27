@@ -8,8 +8,12 @@ mod timebuckets;
 mod units;
 
 use self::plot::{DataSet, LinePlot};
+use crate::consts::COIN;
 use crate::halving::halving_height;
+use crate::idealtime::{bitcoin_block_target, Chain, DateTime, TimeModel};
 use crate::subsidy::Subsidy::NU5;
+use crate::units::{Height, Zat};
+use std::ops::Range;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let max_height = {
@@ -17,20 +21,39 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         h + (h / 10)
     };
 
-    std::fs::create_dir_all("plots")?;
-    plot_issuance_current(max_height)?;
-    Ok(())
-}
+    let nu5_issuance = gen_height_dataset("NU5", 0..max_height, |h| NU5.block_subsidy(h));
 
-fn plot_issuance_current(max_height: u64) -> Result<(), Box<dyn std::error::Error>> {
+    std::fs::create_dir_all("plots")?;
+
     LinePlot {
         file_stem: "issuance-current",
         caption: "ZEC Issuance (current) per 10m Interval",
-        datasets: vec![DataSet::build("NU5", 0..max_height, |h| {
-            NU5.block_subsidy(h)
-        })],
+        datasets: vec![nu5_issuance.clone()],
     }
     .plot()?;
 
     Ok(())
+}
+
+fn gen_height_dataset<F>(name: &'static str, heights: Range<Height>, f: F) -> DataSet<DateTime, f32>
+where
+    F: Fn(Height) -> Zat,
+{
+    use crate::timebuckets::TimeBucketIter;
+
+    let zctime = TimeModel::new(Chain::Zcash);
+
+    println!("Building dataset {}...", name);
+    DataSet::new(
+        name,
+        TimeBucketIter::new(
+            heights.map(move |h| (zctime.at(h), zat2zec(f(h)))),
+            bitcoin_block_target(),
+        )
+        .collect(),
+    )
+}
+
+fn zat2zec(zat: Zat) -> f32 {
+    zat as f32 / COIN as f32
 }
