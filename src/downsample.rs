@@ -28,10 +28,7 @@ where
     I: Iterator<Item = Point<X>>,
     X: CoerceToF64,
 {
-    Downsampler {
-        pts: pts,
-        seg: None,
-    }
+    Downsampler { pts, seg: None }
 }
 
 struct Downsampler<I, X> {
@@ -71,7 +68,7 @@ where
             .map(|seg| seg.wind_down())
             .unwrap_or((None, None));
         self.seg = newseg;
-        return optpt;
+        optpt
     }
 }
 
