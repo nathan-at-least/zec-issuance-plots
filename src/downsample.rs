@@ -1,12 +1,12 @@
 use crate::idealtime::DateTime;
 
-const THRESHOLD: f64 = 0.0001;
+const ANGULAR_THRESHOLD: f64 = 0.0001;
 
 /// Downsample data sets by removing points where Y coordinates vary little.
 
 pub type Point<X> = (X, f32);
 
-pub trait CoerceToF64: std::fmt::Debug {
+pub trait CoerceToF64: Clone + std::fmt::Debug {
     fn coerce_to_f64(&self) -> f64;
 }
 
@@ -39,7 +39,11 @@ struct Downsampler<I, X> {
 #[derive(Debug)]
 enum LineSegment<X> {
     Singleton(Point<X>),
-    Span(Point<X>, Point<X>),
+    Span {
+        start: Point<X>,
+        end: Point<X>,
+        latest: Point<X>,
+    },
 }
 
 impl<I, X> Iterator for Downsampler<I, X>
@@ -80,14 +84,37 @@ where
         use LineSegment::*;
 
         match self {
-            Singleton(first) => (Span(first, pt), None),
-            Span(start, end) => {
-                let curslope = slope(&start, &end);
-                let newslope = slope(&start, &pt);
-                if (curslope - newslope).abs() >= THRESHOLD {
-                    (Span(end, pt), Some(start))
+            Singleton(first) => (
+                Span {
+                    start: first,
+                    end: pt.clone(),
+                    latest: pt,
+                },
+                None,
+            ),
+            Span { start, end, latest } => {
+                let current = angle(&start, &end);
+                let new = angle(&start, &pt);
+                if (current - new).abs() >= ANGULAR_THRESHOLD {
+                    // Set a new line and emit the previous line start pt:
+                    (
+                        Span {
+                            start: latest,
+                            end: pt.clone(),
+                            latest: pt,
+                        },
+                        Some(start),
+                    )
                 } else {
-                    (Span(start, pt), None)
+                    // Keep the same line:
+                    (
+                        Span {
+                            start,
+                            end,
+                            latest: pt,
+                        },
+                        None,
+                    )
                 }
             }
         }
@@ -98,12 +125,16 @@ where
 
         match self {
             Singleton(first) => (None, Some(first)),
-            Span(start, end) => (Some(Singleton(end)), Some(start)),
+            Span {
+                start,
+                end: _,
+                latest,
+            } => (Some(Singleton(latest)), Some(start)),
         }
     }
 }
 
-fn slope<X>(start: &Point<X>, end: &Point<X>) -> f64
+fn angle<X>(start: &Point<X>, end: &Point<X>) -> f64
 where
     X: CoerceToF64,
 {
@@ -118,7 +149,7 @@ where
     let (xe, ye) = f32pt(end);
     assert!(xs != xe);
 
-    (ye - ys) / (xe - xs)
+    ((ye - ys) / (xe - xs)).atan()
 }
 
 #[cfg(test)]
