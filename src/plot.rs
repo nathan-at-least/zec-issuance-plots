@@ -94,8 +94,15 @@ impl LinePlot {
 
         for (ix, dset) in datasets.into_iter().enumerate() {
             let color = PALETTE[ix % PALETTE.len()];
+            let points: Vec<_> = dset.points.into_iter().collect();
+            chart.draw_series(
+                points
+                    .clone()
+                    .into_iter()
+                    .map(|pt| Circle::new(pt, 5, color)),
+            )?;
             chart
-                .draw_series(LineSeries::new(dset.points.into_iter(), color))?
+                .draw_series(LineSeries::new(points, color))?
                 .label(dset.name)
                 .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
         }
