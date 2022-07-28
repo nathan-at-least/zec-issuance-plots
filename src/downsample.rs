@@ -16,6 +16,13 @@ impl CoerceToF64 for DateTime {
     }
 }
 
+#[cfg(test)]
+impl CoerceToF64 for usize {
+    fn coerce_to_f64(&self) -> f64 {
+        *self as f64
+    }
+}
+
 pub fn downsample<I, X>(pts: I) -> impl Iterator<Item = Point<X>>
 where
     I: Iterator<Item = Point<X>>,
@@ -80,7 +87,7 @@ where
             Span(start, end) => {
                 let curslope = slope(&start, &end);
                 let newslope = slope(&start, &pt);
-                if (curslope - newslope).abs() / curslope >= THRESHOLD {
+                if (curslope - newslope).abs() >= THRESHOLD {
                     (Span(end, pt), Some(start))
                 } else {
                     (Span(start, pt), None)
