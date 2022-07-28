@@ -1,29 +1,39 @@
-const THRESHOLD: f32 = 0.01;
+use crate::idealtime::DateTime;
+
+const THRESHOLD: f64 = 0.0001;
 
 /// Downsample data sets by removing points where Y coordinates vary little.
 
 pub type Point<X> = (X, f32);
 
+pub trait CoerceToF64: std::fmt::Debug {
+    fn coerce_to_f64(&self) -> f64;
+}
+
+impl CoerceToF64 for DateTime {
+    fn coerce_to_f64(&self) -> f64 {
+        self.timestamp() as f64
+    }
+}
+
 pub fn downsample<I, X>(pts: I) -> impl Iterator<Item = Point<X>>
 where
     I: Iterator<Item = Point<X>>,
-    X: std::fmt::Debug,
+    X: CoerceToF64,
 {
     Downsampler {
-        pts: Some(pts),
-        latch: None,
-        yieldlatch: None,
+        pts: pts,
+        seg: None,
     }
 }
 
 struct Downsampler<I, X> {
-    pts: Option<I>,
-    latch: Option<Latch<X>>,
-    yieldlatch: Option<Latch<X>>,
+    pts: I,
+    seg: Option<LineSegment<X>>,
 }
 
 #[derive(Debug)]
-enum Latch<X> {
+enum LineSegment<X> {
     Singleton(Point<X>),
     Span(Point<X>, Point<X>),
 }
@@ -31,76 +41,80 @@ enum Latch<X> {
 impl<I, X> Iterator for Downsampler<I, X>
 where
     I: Iterator<Item = Point<X>>,
-    X: std::fmt::Debug,
+    X: CoerceToF64,
 {
     type Item = Point<X>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        use Latch::*;
-
-        if let Some(yl) = self.yieldlatch.take() {
-            match yl {
-                Singleton(pt) => Some(pt),
-                Span(a, b) => {
-                    self.yieldlatch = Some(Singleton(b));
-                    Some(a)
+        for pt in self.pts.by_ref() {
+            if let Some(seg) = self.seg.take() {
+                let (newseg, optpt) = seg.transition(pt);
+                self.seg = Some(newseg);
+                if optpt.is_some() {
+                    return optpt;
                 }
+            } else {
+                self.seg = Some(LineSegment::Singleton(pt));
             }
-        } else if let Some(pts) = self.pts.as_mut() {
-            for pt in pts {
-                if let Some(latch) = self.latch.take() {
-                    if latch.past_threshold(pt.1) {
-                        self.yieldlatch = Some(latch);
-                        self.latch = Some(Singleton(pt));
-                        return self.next();
-                    } else {
-                        self.latch = Some(latch.update(pt))
-                    }
+        }
+
+        let (newseg, optpt) = self
+            .seg
+            .take()
+            .map(|seg| seg.wind_down())
+            .unwrap_or((None, None));
+        self.seg = newseg;
+        return optpt;
+    }
+}
+
+impl<X> LineSegment<X>
+where
+    X: CoerceToF64,
+{
+    fn transition(self, pt: Point<X>) -> (Self, Option<Point<X>>) {
+        use LineSegment::*;
+
+        match self {
+            Singleton(first) => (Span(first, pt), None),
+            Span(start, end) => {
+                let curslope = slope(&start, &end);
+                let newslope = slope(&start, &pt);
+                if (curslope - newslope).abs() / curslope >= THRESHOLD {
+                    (Span(end, pt), Some(start))
                 } else {
-                    self.latch = Some(Singleton(pt));
+                    (Span(start, pt), None)
                 }
             }
+        }
+    }
 
-            self.pts = None;
-            self.yieldlatch = self.latch.take();
-            self.next()
-        } else {
-            None
+    fn wind_down(self) -> (Option<Self>, Option<Point<X>>) {
+        use LineSegment::*;
+
+        match self {
+            Singleton(first) => (None, Some(first)),
+            Span(start, end) => (Some(Singleton(end)), Some(start)),
         }
     }
 }
 
-impl<X> Latch<X> {
-    fn past_threshold(&self, y: f32) -> bool {
-        let latchval = self.latch_val();
-        let delta = (latchval - y).abs();
-        let thresh = if latchval < THRESHOLD / 1e6 {
-            // Avoid divide by 0:
-            delta
-        } else {
-            delta / latchval
-        };
-
-        thresh >= THRESHOLD
+fn slope<X>(start: &Point<X>, end: &Point<X>) -> f64
+where
+    X: CoerceToF64,
+{
+    fn f32pt<X>(&(ref rawx, ref y): &Point<X>) -> (f64, f64)
+    where
+        X: CoerceToF64,
+    {
+        (rawx.coerce_to_f64(), *y as f64)
     }
 
-    fn latch_val(&self) -> f32 {
-        use Latch::*;
+    let (xs, ys) = f32pt(start);
+    let (xe, ye) = f32pt(end);
+    assert!(xs != xe);
 
-        match self {
-            Singleton((_, y)) => *y,
-            Span((_, y), _) => *y,
-        }
-    }
-
-    fn update(self, pt: Point<X>) -> Self {
-        use Latch::*;
-
-        match self {
-            Singleton(a) => Span(a, pt),
-            Span(a, _) => Span(a, pt),
-        }
-    }
+    (ye - ys) / (xe - xs)
 }
 
 #[cfg(test)]
