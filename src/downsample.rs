@@ -1,6 +1,6 @@
 use crate::idealtime::DateTime;
 
-const ANGULAR_THRESHOLD: f64 = 0.0001;
+const ANGULAR_THRESHOLD: f64 = 1e-6;
 
 /// Downsample data sets by removing points where Y coordinates vary little.
 
