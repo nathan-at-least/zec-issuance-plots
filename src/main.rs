@@ -3,6 +3,7 @@ mod downsample;
 mod halving;
 mod idealtime;
 mod plot;
+mod plotsdir;
 mod subsidy;
 mod timebuckets;
 mod units;
@@ -15,15 +16,17 @@ use crate::subsidy::Subsidy::NU5;
 use crate::units::{Height, Zat};
 use std::ops::Range;
 
+const PLOTS_DIR: &str = "plots";
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    plotsdir::refresh()?;
+
     let max_height = {
         let h = halving_height(10);
         h + (h / 10)
     };
 
     let nu5_issuance = gen_height_dataset("NU5", 0..max_height, |h| NU5.block_subsidy(h));
-
-    std::fs::create_dir_all("plots")?;
 
     LinePlot {
         file_stem: "issuance-current",

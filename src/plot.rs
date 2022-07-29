@@ -2,6 +2,7 @@ mod csv;
 
 use crate::downsample::downsample;
 use crate::idealtime::DateTime;
+use crate::PLOTS_DIR;
 use plotters::coord::types::IntoMonthly;
 use plotters::prelude::*;
 
@@ -30,7 +31,7 @@ pub struct DataSet<X, Y> {
 
 impl LinePlot {
     pub fn plot(self) -> Result<(), Box<dyn std::error::Error>> {
-        let path = format!("plots/{}.png", self.file_stem);
+        let path = format!("{}/{}.png", PLOTS_DIR, self.file_stem);
         println!("Generating plot {} in {:?}", self.file_stem, &path);
         let root = BitMapBackend::new(&path, PLOT_SIZE).into_drawing_area();
         root.fill(&WHITE)?;
