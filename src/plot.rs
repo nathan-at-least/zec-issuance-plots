@@ -1,6 +1,7 @@
 mod csv;
 
 use crate::consts::COIN;
+use crate::downsample::downsample;
 use crate::idealtime::{self, DateTime};
 use crate::timebuckets::TimeBucketIter;
 use crate::units::{Height, Zat};
@@ -43,12 +44,12 @@ impl LinePlot {
             .into_iter()
             .map(|dset| DataSet {
                 name: dset.name,
-                points: TimeBucketIter::new(
+                points: downsample(TimeBucketIter::new(
                     dset.points
                         .into_iter()
                         .map(|(h, zat)| (idealtime::at(h), zat2zec(zat))),
                     idealtime::bitcoin_block_target(),
-                )
+                ))
                 .collect(),
             })
             .collect();
@@ -93,8 +94,15 @@ impl LinePlot {
 
         for (ix, dset) in datasets.into_iter().enumerate() {
             let color = PALETTE[ix % PALETTE.len()];
+            let points: Vec<_> = dset.points.into_iter().collect();
+            chart.draw_series(
+                points
+                    .clone()
+                    .into_iter()
+                    .map(|pt| Circle::new(pt, 5, color)),
+            )?;
             chart
-                .draw_series(LineSeries::new(dset.points.into_iter(), color))?
+                .draw_series(LineSeries::new(points, color))?
                 .label(dset.name)
                 .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
         }

@@ -1,4 +1,5 @@
 mod consts;
+mod downsample;
 mod halving;
 mod idealtime;
 mod plot;
