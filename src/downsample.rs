@@ -40,9 +40,9 @@ struct Downsampler<I, X> {
 enum LineSegment<X> {
     Singleton(Point<X>),
     Span {
+        initial: Point<X>,
         start: Point<X>,
         end: Point<X>,
-        latest: Point<X>,
     },
 }
 
@@ -86,32 +86,36 @@ where
         match self {
             Singleton(first) => (
                 Span {
+                    initial: first.clone(),
                     start: first,
-                    end: pt.clone(),
-                    latest: pt,
+                    end: pt,
                 },
                 None,
             ),
-            Span { start, end, latest } => {
+            Span {
+                initial,
+                start,
+                end,
+            } => {
                 let current = angle(&start, &end);
-                let new = angle(&start, &pt);
+                let new = angle(&end, &pt);
                 if (current - new).abs() >= ANGULAR_THRESHOLD {
-                    // Set a new line and emit the previous line start pt:
+                    // Set a new line and emit the previous initial:
                     (
                         Span {
-                            start: latest,
-                            end: pt.clone(),
-                            latest: pt,
+                            initial: end.clone(),
+                            start: end,
+                            end: pt,
                         },
-                        Some(start),
+                        Some(initial),
                     )
                 } else {
-                    // Keep the same line:
+                    // Adjust the line w/ same initial:
                     (
                         Span {
-                            start,
-                            end,
-                            latest: pt,
+                            initial,
+                            start: end,
+                            end: pt,
                         },
                         None,
                     )
@@ -126,10 +130,10 @@ where
         match self {
             Singleton(first) => (None, Some(first)),
             Span {
-                start,
-                end: _,
-                latest,
-            } => (Some(Singleton(latest)), Some(start)),
+                initial,
+                start: _,
+                end,
+            } => (Some(Singleton(end)), Some(initial)),
         }
     }
 }
