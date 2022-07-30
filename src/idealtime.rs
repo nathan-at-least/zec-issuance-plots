@@ -4,6 +4,10 @@
 use crate::units::Height;
 use chrono::offset::Utc;
 use chrono::Duration;
+use std::str::FromStr;
+
+const GENESIS_TIME_TEXT_ZCASH: &str = "2016-10-28 07:56:00 UTC";
+const GENESIS_TIME_TEXT_BITCOIN: &str = "2009-01-03 18:15:05 UTC";
 
 pub type DateTime = chrono::DateTime<Utc>;
 
@@ -11,9 +15,37 @@ pub fn bitcoin_block_target() -> Duration {
     Duration::minutes(10)
 }
 
-const GENESIS_TIME_TEXT: &str = "2016-10-28 07:56:00 UTC";
+pub enum Chain {
+    #[allow(dead_code)]
+    Bitcoin,
+    Zcash,
+}
 
-pub fn at(h: Height) -> DateTime {
+pub struct TimeModel {
+    chain: Chain,
+    genesis: DateTime,
+}
+
+impl TimeModel {
+    pub fn new(chain: Chain) -> Self {
+        let gentext = match chain {
+            Chain::Bitcoin => GENESIS_TIME_TEXT_BITCOIN,
+            Chain::Zcash => GENESIS_TIME_TEXT_ZCASH,
+        };
+        let genesis = DateTime::from_str(gentext).unwrap();
+
+        TimeModel { chain, genesis }
+    }
+
+    pub fn at(&self, h: Height) -> DateTime {
+        match self.chain {
+            Chain::Bitcoin => self.genesis + (bitcoin_block_target() * h.try_into().unwrap()),
+            Chain::Zcash => zcash_time_at(self.genesis, h),
+        }
+    }
+}
+
+fn zcash_time_at(genesis: DateTime, h: Height) -> DateTime {
     use crate::consts::{
         BLOSSOM_ACTIVATION, POST_BLOSSOM_POW_TARGET_SPACING, PRE_BLOSSOM_POW_TARGET_SPACING,
     };
@@ -26,14 +58,5 @@ pub fn at(h: Height) -> DateTime {
     let post_blossom_seconds = post_blossom_blocks * POST_BLOSSOM_POW_TARGET_SPACING;
     let seconds_since_genesis = pre_blossom_seconds + post_blossom_seconds;
 
-    genesis() + Duration::seconds(seconds_since_genesis as i64)
-}
-
-fn genesis() -> DateTime {
-    use once_cell::sync::OnceCell;
-    use std::str::FromStr;
-
-    static CELL: OnceCell<DateTime> = OnceCell::new();
-
-    *CELL.get_or_init(|| DateTime::from_str(GENESIS_TIME_TEXT).unwrap())
+    genesis + Duration::seconds(seconds_since_genesis as i64)
 }
