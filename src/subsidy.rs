@@ -1,7 +1,4 @@
 mod nu5;
-mod tailem;
-
-pub use self::tailem::TailEmissionSubsidy;
 
 use crate::units::{Height, Zat};
 
@@ -14,9 +11,6 @@ pub enum Subsidy {
     /// various properties, but an input->output compatible verification against zcashd doesn't yet
     /// exist.
     NU5,
-
-    /// Tail Emission
-    TailEmission(TailEmissionSubsidy),
 }
 use Subsidy::*;
 
@@ -25,16 +19,6 @@ impl Subsidy {
     pub fn block_subsidy(&self, height: Height) -> Zat {
         match self {
             NU5 => self::nu5::block_subsidy(height),
-            TailEmission(tes) => tes.block_subsidy(height),
         }
     }
-
-    /*
-    /// The maximum supply for the issuance schedule, if any
-    pub fn max_supply(&self) -> Option<Zat> {
-        match self {
-            NU5 => Some(self::nu5::max_supply()),
-        }
-    }
-    */
 }
