@@ -2,7 +2,7 @@ mod csv;
 
 use crate::consts::COIN;
 use crate::downsample::downsample;
-use crate::idealtime::{self, DateTime};
+use crate::idealtime::{bitcoin_block_target, Chain, DateTime, TimeModel};
 use crate::timebuckets::TimeBucketIter;
 use crate::units::{Height, Zat};
 use plotters::coord::types::IntoMonthly;
@@ -34,6 +34,8 @@ pub struct DataSet<X, Y> {
 
 impl LinePlot {
     pub fn plot(self) -> Result<(), Box<dyn std::error::Error>> {
+        let zctime = TimeModel::new(Chain::Zcash);
+
         let path = format!("plots/{}.png", self.file_stem);
         println!("Generating plot {} in {:?}", self.file_stem, &path);
         let root = BitMapBackend::new(&path, PLOT_SIZE).into_drawing_area();
@@ -47,8 +49,8 @@ impl LinePlot {
                 points: downsample(TimeBucketIter::new(
                     dset.points
                         .into_iter()
-                        .map(|(h, zat)| (idealtime::at(h), zat2zec(zat))),
-                    idealtime::bitcoin_block_target(),
+                        .map(|(h, zat)| (zctime.at(h), zat2zec(zat))),
+                    bitcoin_block_target(),
                 ))
                 .collect(),
             })
