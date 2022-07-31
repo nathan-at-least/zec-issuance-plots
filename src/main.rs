@@ -32,6 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         datasets: vec![gen_issuance_dataset("NU5", 0..max_height, |h| {
             NU5.block_subsidy(h)
         })],
+        points: false,
     }
     .plot()?;
 
@@ -41,6 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         datasets: vec![gen_supply_dataset("NU5", 0..max_height, |h| {
             NU5.block_subsidy(h)
         })],
+        points: false,
     }
     .plot()?;
 

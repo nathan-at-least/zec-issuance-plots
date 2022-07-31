@@ -21,6 +21,7 @@ pub struct LinePlot {
     pub file_stem: &'static str,
     pub caption: &'static str,
     pub datasets: Vec<DataSet<DateTime, f32>>,
+    pub points: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -85,17 +86,19 @@ impl LinePlot {
 
         for (ix, dset) in datasets.into_iter().enumerate() {
             let color = PALETTE[ix % PALETTE.len()];
-            let points: Vec<_> = dset.points.into_iter().collect();
-            chart.draw_series(
-                points
-                    .clone()
-                    .into_iter()
-                    .map(|pt| Circle::new(pt, 5, color)),
-            )?;
-            chart
-                .draw_series(LineSeries::new(points, color))?
-                .label(dset.name)
-                .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
+
+            if self.points {
+                chart.draw_series(
+                    dset.points
+                        .into_iter()
+                        .map(|pt| Circle::new(pt, 5.0, color)),
+                )?;
+            } else {
+                chart
+                    .draw_series(LineSeries::new(dset.points, color))?
+                    .label(dset.name)
+                    .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
+            }
         }
 
         chart
