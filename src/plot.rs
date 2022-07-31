@@ -20,7 +20,7 @@ const PALETTE: &[RGBColor] = &[
 pub struct LinePlot {
     pub file_stem: &'static str,
     pub caption: &'static str,
-    pub datasets: Vec<DataSet<DateTime, f32>>,
+    pub datasets: Vec<DataSet<DateTime, f64>>,
     pub points: bool,
 }
 
@@ -37,7 +37,7 @@ impl LinePlot {
         let root = BitMapBackend::new(&path, PLOT_SIZE).into_drawing_area();
         root.fill(&WHITE)?;
 
-        let datasets: Vec<DataSet<DateTime, f32>> = self
+        let datasets: Vec<DataSet<DateTime, f64>> = self
             .datasets
             .into_iter()
             .map(|dset| DataSet {
@@ -66,9 +66,9 @@ impl LinePlot {
                 dset.points
                     .iter()
                     .map(|(_, z)| z)
-                    .fold(0f32, |a, b| max_f32(a, *b))
+                    .fold(0f64, |a, b| max_f64(a, *b))
             })
-            .fold(0f32, max_f32)
+            .fold(0f64, max_f64)
             * 1.1;
 
         let mut chart = ChartBuilder::on(&root)
@@ -76,7 +76,7 @@ impl LinePlot {
             .margin(5)
             .x_label_area_size(60)
             .y_label_area_size(60)
-            .build_cartesian_2d((time_min..time_max).monthly(), 0f32..zec_max)?;
+            .build_cartesian_2d((time_min..time_max).monthly(), 0f64..zec_max)?;
 
         chart
             .configure_mesh()
@@ -117,7 +117,7 @@ impl<X, Y> DataSet<X, Y> {
     }
 }
 
-fn max_f32(a: f32, b: f32) -> f32 {
+fn max_f64(a: f64, b: f64) -> f64 {
     if a > b {
         a
     } else {

@@ -53,7 +53,7 @@ fn gen_issuance_dataset<F>(
     name: &'static str,
     heights: Range<Height>,
     f: F,
-) -> DataSet<DateTime, f32>
+) -> DataSet<DateTime, f64>
 where
     F: Fn(Height) -> Zat,
 {
@@ -72,7 +72,7 @@ where
     )
 }
 
-fn gen_supply_dataset<F>(name: &'static str, heights: Range<Height>, f: F) -> DataSet<DateTime, f32>
+fn gen_supply_dataset<F>(name: &'static str, heights: Range<Height>, f: F) -> DataSet<DateTime, f64>
 where
     F: Fn(Height) -> Zat,
 {
@@ -91,6 +91,6 @@ where
     )
 }
 
-fn zat2zec(zat: Zat) -> f32 {
-    zat as f32 / COIN as f32
+fn zat2zec(zat: Zat) -> f64 {
+    zat as f64 / COIN as f64
 }

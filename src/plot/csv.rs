@@ -1,7 +1,7 @@
 use crate::idealtime::DateTime;
 use crate::{DataSet, PLOTS_DIR};
 
-pub(super) fn write(stem: &str, datasets: &[DataSet<DateTime, f32>]) -> std::io::Result<()> {
+pub(super) fn write(stem: &str, datasets: &[DataSet<DateTime, f64>]) -> std::io::Result<()> {
     use std::io::Write;
 
     let path = format!("{}/{}.csv", PLOTS_DIR, stem);
