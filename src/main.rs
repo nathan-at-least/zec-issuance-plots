@@ -35,6 +35,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     .plot()?;
 
+    LinePlot {
+        file_stem: "supply-current",
+        caption: "ZEC Supply (current protocol)",
+        datasets: vec![gen_supply_dataset("NU5", 0..max_height, |h| {
+            NU5.block_subsidy(h)
+        })],
+    }
+    .plot()?;
+
     Ok(())
 }
 
@@ -50,7 +59,7 @@ where
 
     let zctime = TimeModel::new(Chain::Zcash);
 
-    println!("Building dataset {}...", name);
+    println!("Building issuance dataset {}...", name);
     DataSet::new(
         name,
         TimeBucketIter::new(
@@ -58,6 +67,25 @@ where
             bitcoin_block_target(),
         )
         .collect(),
+    )
+}
+
+fn gen_supply_dataset<F>(name: &'static str, heights: Range<Height>, f: F) -> DataSet<DateTime, f32>
+where
+    F: Fn(Height) -> Zat,
+{
+    let zctime = TimeModel::new(Chain::Zcash);
+
+    println!("Building supply dataset {}...", name);
+    DataSet::new(
+        name,
+        heights
+            .map(move |h| (zctime.at(h), zat2zec(f(h))))
+            .scan(0.0, |acc, (t, y)| {
+                *acc += y;
+                Some((t, *acc))
+            })
+            .collect(),
     )
 }
 
