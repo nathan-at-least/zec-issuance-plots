@@ -75,7 +75,7 @@ impl LinePlot {
             .caption(self.caption, ("sans-serif", 40).into_font())
             .margin(5)
             .x_label_area_size(60)
-            .y_label_area_size(60)
+            .y_label_area_size(140)
             .build_cartesian_2d((time_min..time_max).monthly(), 0f64..zec_max)?;
 
         chart
