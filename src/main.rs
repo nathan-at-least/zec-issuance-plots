@@ -26,19 +26,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         h + (h / 10)
     };
 
-    let nu5_issuance = gen_height_dataset("NU5", 0..max_height, |h| NU5.block_subsidy(h));
-
     LinePlot {
         file_stem: "issuance-current",
         caption: "ZEC Issuance (current) per 10m Interval",
-        datasets: vec![nu5_issuance.clone()],
+        datasets: vec![gen_issuance_dataset("NU5", 0..max_height, |h| {
+            NU5.block_subsidy(h)
+        })],
     }
     .plot()?;
 
     Ok(())
 }
 
-fn gen_height_dataset<F>(name: &'static str, heights: Range<Height>, f: F) -> DataSet<DateTime, f32>
+fn gen_issuance_dataset<F>(
+    name: &'static str,
+    heights: Range<Height>,
+    f: F,
+) -> DataSet<DateTime, f32>
 where
     F: Fn(Height) -> Zat,
 {
