@@ -21,10 +21,13 @@ const PLOTS_DIR: &str = "plots";
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     plotsdir::refresh()?;
 
+    let max_supply = 21_000_000f64;
     let max_height = {
         let h = halving_height(10);
         h + (h / 10)
     };
+
+    let zctime = TimeModel::new(Chain::Zcash);
 
     LinePlot {
         file_stem: "issuance-current",
@@ -39,9 +42,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     LinePlot {
         file_stem: "supply-current",
         caption: "ZEC Supply (current protocol)",
-        datasets: vec![gen_supply_dataset("NU5", 0..max_height, |h| {
-            NU5.block_subsidy(h)
-        })],
+        datasets: vec![
+            DataSet::new(
+                "supply cap",
+                vec![
+                    (zctime.at(0), max_supply),
+                    (zctime.at(max_height - 1), max_supply),
+                ],
+            ),
+            gen_supply_dataset("NU5", 0..max_height, |h| NU5.block_subsidy(h)),
+        ],
         points: false,
     }
     .plot()?;
