@@ -1,3 +1,4 @@
+mod btc;
 mod nu5;
 
 use crate::units::{Height, Zat};
@@ -11,6 +12,7 @@ pub enum Subsidy {
     /// various properties, but an input->output compatible verification against zcashd doesn't yet
     /// exist.
     NU5,
+    Btc,
 }
 use Subsidy::*;
 
@@ -19,6 +21,7 @@ impl Subsidy {
     pub fn block_subsidy(&self, height: Height) -> Zat {
         match self {
             NU5 => self::nu5::block_subsidy(height),
+            Btc => self::btc::block_subsidy(height),
         }
     }
 }
