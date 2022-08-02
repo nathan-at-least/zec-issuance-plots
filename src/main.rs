@@ -9,7 +9,7 @@ mod timebuckets;
 mod units;
 
 use self::plot::{DataSet, LinePlot};
-use crate::consts::COIN;
+use crate::consts::{COIN, POST_BLOSSOM_HALVING_INTERVAL};
 use crate::halving::halving_height;
 use crate::idealtime::{bitcoin_block_target, Chain, DateTime, TimeModel};
 use crate::subsidy::Subsidy::{self, Btc, PosterityFund, NU5};
@@ -26,8 +26,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         h + (h / 10)
     };
     let (zpf_activation_height_a, zpf_activation_height_b) = {
+        let b = POST_BLOSSOM_HALVING_INTERVAL;
         let h = halving_height(2);
-        (h - (h / 6), h + (h / 4))
+        (h - (b / 5), h - (b / 7))
     };
 
     let zectime = TimeModel::new(Chain::Zcash);
@@ -77,7 +78,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         caption: "ZPF Issuance per 10m Interval",
         datasets: vec![
             gen_issuance_dataset(NU5, zec_max_height),
-            gen_issuance_dataset(PosterityFund(0), zec_max_height),
             gen_issuance_dataset(PosterityFund(zpf_activation_height_a), zec_max_height),
             gen_issuance_dataset(PosterityFund(zpf_activation_height_b), zec_max_height),
         ],
