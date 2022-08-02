@@ -1,5 +1,5 @@
-use crate::consts::COIN;
-use crate::units::{Height, Zat};
+use crate::consts::{COIN, POST_BLOSSOM_HALVING_INTERVAL};
+use crate::units::Zat;
 
 const SUPPLY_CAP: Zat = 21_000_000 * COIN;
 
@@ -17,8 +17,8 @@ fn remainder_proportion() -> f64 {
         // (1-x)^blocks = 0.5
         // 1-x = 0.5^(1/half_life)
         // x = 1-0.5^(1/half_life)
-        //
-        const HALF_LIFE: Height = 840_000 * 4;
-        dbg!(1.0f64 - dbg!(0.5f64.powf(1.0f64 / (HALF_LIFE as f64))))
+        let remainder = dbg!(0.5f64.powf(1.0f64 / (POST_BLOSSOM_HALVING_INTERVAL as f64)));
+        dbg!(remainder.powf(POST_BLOSSOM_HALVING_INTERVAL as f64));
+        dbg!(1.0f64 - remainder)
     })
 }
