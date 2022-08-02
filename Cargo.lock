@@ -440,6 +440,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "once_cell"
+version = "1.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "18a6dbe30758c9f83eb00cbea4ac95966305f5a7772f3f42ebfc7fc7eddbd8e1"
+
+[[package]]
 name = "pathfinder_geometry"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -889,6 +895,7 @@ name = "zec-issuance-model"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "once_cell",
  "plotters",
  "test-case",
 ]

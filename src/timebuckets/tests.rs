@@ -18,7 +18,12 @@ fn test_across_boundary(halvingnum: u64) {
     let start = hh1 - 2 * zec_blocks_per_btc_blocks;
     let end = hh1 + 2 * zec_blocks_per_btc_blocks;
 
-    let raw_points = (start..end).map(|h| (zctime.at(h), NU5.block_subsidy(h)));
+    let conv = |u| usize::try_from(u).unwrap();
+    let raw_points = NU5
+        .into_iter()
+        .skip(conv(start))
+        .take(conv(end - start))
+        .map(|(h, zat, _)| (zctime.at(h), zat));
     let bucket_points = TimeBucketIter::new(raw_points, bitcoin_block_target());
 
     let buckets: Vec<(DateTime, Zat)> = bucket_points.collect();
