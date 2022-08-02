@@ -9,7 +9,7 @@ pub(super) fn write(stem: &str, datasets: &[DataSet<DateTime, f64>]) -> std::io:
     let mut f = std::fs::File::create(path)?;
 
     write!(f, "time")?;
-    for colname in datasets.iter().map(|ds| ds.name) {
+    for colname in datasets.iter().map(|ds| &ds.name) {
         write!(f, ",{}", colname)?;
     }
     writeln!(f)?;

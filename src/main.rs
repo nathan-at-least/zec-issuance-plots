@@ -9,12 +9,11 @@ mod timebuckets;
 mod units;
 
 use self::plot::{DataSet, LinePlot};
-use crate::consts::COIN;
+use crate::consts::{COIN, POST_BLOSSOM_HALVING_INTERVAL};
 use crate::halving::halving_height;
 use crate::idealtime::{bitcoin_block_target, Chain, DateTime, TimeModel};
-use crate::subsidy::Subsidy::{Btc, NU5};
-use crate::units::{Height, Zat};
-use std::ops::Range;
+use crate::subsidy::Subsidy::{self, Btc, PosterityFund, NU5};
+use crate::units::Zat;
 
 const PLOTS_DIR: &str = "plots";
 
@@ -25,6 +24,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let zec_max_height = {
         let h = halving_height(5);
         h + (h / 10)
+    };
+    let zpf_activation_height = {
+        let b = POST_BLOSSOM_HALVING_INTERVAL;
+        let h = halving_height(2);
+        h + (b / 4)
     };
 
     let zectime = TimeModel::new(Chain::Zcash);
@@ -45,9 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     LinePlot {
         file_stem: "issuance-nu5",
         caption: "ZEC Issuance per 10m Interval (as of NU5 protocol)",
-        datasets: vec![gen_issuance_dataset("NU5", 0..zec_max_height, |h| {
-            NU5.block_subsidy(h)
-        })],
+        datasets: vec![gen_issuance_dataset(NU5, zec_max_height)],
         points: false,
     }
     .plot()?;
@@ -56,65 +58,86 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         file_stem: "supply-btc-vs-nu5",
         caption: "Supplies of BTC & ZEC (as of NU5 protocol)",
         datasets: vec![
-            DataSet::new("supply cap", {
+            DataSet::new("supply cap".to_string(), {
                 vec![
                     (btctime.at(0), max_supply),
                     (btctime.at(btc_max_height), max_supply),
                 ]
             }),
-            gen_supply_dataset(zectime, "ZEC (NU5)", 0..zec_max_height, |h| {
-                NU5.block_subsidy(h)
-            }),
-            gen_supply_dataset(btctime, "BTC", 0..btc_max_height, |h| Btc.block_subsidy(h)),
+            gen_supply_dataset(zectime, NU5, zec_max_height),
+            gen_supply_dataset(btctime, Btc, btc_max_height),
         ],
         points: false,
     }
     .plot()?;
 
+    LinePlot {
+        file_stem: "issuance-zpf",
+        caption: "ZPF Issuance per 10m Interval",
+        datasets: vec![
+            gen_issuance_dataset(NU5, zec_max_height),
+            gen_issuance_dataset(PosterityFund(zpf_activation_height), zec_max_height),
+        ],
+        points: false,
+    }
+    .plot()?;
+
+    LinePlot {
+        file_stem: "supply-zpf",
+        caption: "Supply of ZEC",
+        datasets: vec![
+            DataSet::new("supply cap".to_string(), {
+                vec![
+                    (zectime.at(0), max_supply),
+                    (zectime.at(zec_max_height), max_supply),
+                ]
+            }),
+            gen_supply_dataset(zectime, NU5, zec_max_height),
+            gen_supply_dataset(
+                zectime,
+                PosterityFund(zpf_activation_height),
+                zec_max_height,
+            ),
+        ],
+        points: false,
+    }
+    .plot()?;
     Ok(())
 }
 
-fn gen_issuance_dataset<F>(
-    name: &'static str,
-    heights: Range<Height>,
-    f: F,
-) -> DataSet<DateTime, f64>
-where
-    F: Fn(Height) -> Zat,
-{
+fn gen_issuance_dataset(subsidy: Subsidy, max_height: u64) -> DataSet<DateTime, f64> {
     use crate::timebuckets::TimeBucketIter;
 
+    let name = subsidy.legend();
     let zctime = TimeModel::new(Chain::Zcash);
 
     println!("Building issuance dataset {}...", name);
     DataSet::new(
         name,
         TimeBucketIter::new(
-            heights.map(move |h| (zctime.at(h), zat2zec(f(h)))),
+            subsidy
+                .into_iter()
+                .take(usize::try_from(max_height).unwrap())
+                .map(|(h, zat, _)| (zctime.at(h), zat2zec(zat))),
             bitcoin_block_target(),
         )
         .collect(),
     )
 }
 
-fn gen_supply_dataset<F>(
+fn gen_supply_dataset(
     time: TimeModel,
-    name: &'static str,
-    heights: Range<Height>,
-    f: F,
-) -> DataSet<DateTime, f64>
-where
-    F: Fn(Height) -> Zat,
-{
+    subsidy: Subsidy,
+    max_height: u64,
+) -> DataSet<DateTime, f64> {
+    let name = subsidy.legend();
     println!("Building supply dataset {}...", name);
     DataSet::new(
         name,
-        heights
-            .map(move |h| (time.at(h), zat2zec(f(h))))
-            .scan(0.0, |acc, (t, y)| {
-                *acc += y;
-                Some((t, *acc))
-            })
+        subsidy
+            .into_iter()
+            .take(usize::try_from(max_height).unwrap())
+            .map(move |(h, _, supply)| (time.at(h), zat2zec(supply)))
             .collect(),
     )
 }

@@ -26,7 +26,7 @@ pub struct LinePlot {
 
 #[derive(Clone, Debug)]
 pub struct DataSet<X, Y> {
-    name: &'static str,
+    name: String,
     points: Vec<(X, Y)>,
 }
 
@@ -112,7 +112,7 @@ impl LinePlot {
 }
 
 impl<X, Y> DataSet<X, Y> {
-    pub fn new(name: &'static str, points: Vec<(X, Y)>) -> Self {
+    pub fn new(name: String, points: Vec<(X, Y)>) -> Self {
         DataSet { name, points }
     }
 }

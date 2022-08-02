@@ -15,12 +15,13 @@ pub fn bitcoin_block_target() -> Duration {
     Duration::minutes(10)
 }
 
+#[derive(Clone, Copy)]
 pub enum Chain {
-    #[allow(dead_code)]
     Bitcoin,
     Zcash,
 }
 
+#[derive(Clone, Copy)]
 pub struct TimeModel {
     chain: Chain,
     genesis: DateTime,
